@@ -23,3 +23,19 @@ jobs:
         run: |
           docker-compose -f docker-compose.yaml build
           docker-compose -f docker-compose.yaml up -d
+
+      - name: Wait for services to be up
+        run: |
+          echo "Waiting for services to be up..."
+          sleep 60
+
+      - name: Validate localhost:80
+        run: |
+          status_code=$(curl -o /dev/null -s -w "%{http_code}\n" http://localhost:80)
+          echo "Status code: $status_code"
+          if [ "$status_code" -ne 200 ]; then
+            echo "Validation failed: Did not receive status 200"
+            exit 1
+          else
+            echo "Validation successful: Received status 200"
+          fi
